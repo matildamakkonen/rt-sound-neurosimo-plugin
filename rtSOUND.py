@@ -30,7 +30,15 @@ class Preprocessor:
 
         # baseline update rate for geometric weighting of samples:
         self.baseline_update_rate = 0.0006
+
+        # Smooth sigmas update coefficient:
+        self.sigmas_update_coeff = 0.05
         # -----------------------
+
+        # Estimate the neuronal covariance for SOUND
+        LL = self.lfm @ (self.lfm.T)
+        regularization_term = self.lambda0*np.trace(LL) / self.num_of_eeg_channels
+        self.LL_reg = LL / regularization_term
 
         # Initialize state
         self.filter = np.identity(self.num_of_eeg_channels)
@@ -86,9 +94,10 @@ class Preprocessor:
                 self.baseline_correction,
                 self.sigmas,
                 self.num_of_eeg_channels,
-                self.lfm,
+                self.LL_reg,
                 self.iterations,
                 self.lambda0,
+                self.sigmas_update_coeff,
                 self.convergence_boundary,
             ))
 
@@ -120,7 +129,7 @@ class Preprocessor:
         }
 
 
-def sound(eeg_samples, baseline_correction, sigmas, num_of_channels, lfm, iterations, lambda0, convergence_boundary):
+def sound(eeg_samples, baseline_correction, sigmas, num_of_channels, LL_reg, iterations, lambda0, sigmas_update_coeff, convergence_boundary):
     # If there are no channels, return an empty filter.
     if num_of_channels == 0:
         return np.identity(0), lambda0, np.identity(0), np.identity(0), np.identity(0)
@@ -128,30 +137,19 @@ def sound(eeg_samples, baseline_correction, sigmas, num_of_channels, lfm, iterat
     # Actual baseline correction for Sound data buffer
     eeg_samples = eeg_samples - baseline_correction
 
-    # Smooth sigmas update coeff:
-    sigmas_update_coeff = 0.05
-
     # Performs the SOUND algorithm for a given data.
-
-    data = eeg_samples.T
 
     start = time.time()
 
     n0, _ = data.shape
     data = np.reshape(data, (n0, -1))
 
-    LL = lfm @ lfm.T
     dn = np.empty((iterations, 1)) # Empty vector for convergences
 
     #################### Run beamformer SOUND #####################################################
     # See Metsomaa et al. 2024 Brain Topography for equations
 
     dataCov = np.matmul(data, data.T) / data.shape[1] # Estimate the data covariance matrix as sample covariance
-    
-    # Estimate the neuronal covariance
-    LL = lfm @ (lfm.T)
-    regularization_term = lambda0*np.trace(LL) / num_of_channels
-    LL_reg = LL / regularization_term
 
     # Save the previous sigma values before the new iteration:
     sigmas_prev_update = np.copy(sigmas)
@@ -180,7 +178,7 @@ def sound(eeg_samples, baseline_correction, sigmas, num_of_channels, lfm, iterat
 
     # Final data correction based on the final noise-covariance estimate.
     # Calculates matrices needed for SOUND spatial filter (for other functions)
-    #SOUND_filter = LL @ np.linalg.inv(LL + regularization_term*C_noise)
+    # SOUND_filter = LL @ np.linalg.inv(LL + regularization_term*C_noise)
     W = np.diag(1.0 / np.squeeze(sigmas))
     WL = np.matmul(W, lfm)
     WLLW = np.matmul(WL, WL.T)
