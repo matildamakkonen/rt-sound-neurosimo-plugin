@@ -1,5 +1,3 @@
-# Same as sound_2_2_nolambdachange_test_smooth.py, but with debug prints disabled.
-
 import multiprocessing
 import time
 
@@ -17,8 +15,8 @@ class Preprocessor:
         self.num_of_emg_channels = num_of_emg_channels
         self.sampling_frequency = sampling_frequency
 
-        # Load a generic average-head lead field tailored for the NeurOne data:
         # Load the lead field matrix from a CSV file
+        # IMPORTANT! Change this to a lead field matrix compatible with your real-time streaming data
         self.lfm = np.genfromtxt('SOUND_leadfield.csv',delimiter=',')
 
         # -----------------------
@@ -187,9 +185,6 @@ def sound(eeg_samples, baseline_correction, sigmas, num_of_channels, lfm, iterat
     WLLW = np.matmul(WL, WL.T)
     C = (WLLW + lambda0 * np.trace(WLLW) / num_of_channels * np.eye(num_of_channels))
     SOUND_filter = np.matmul(lfm, np.matmul(WL.T, np.linalg.solve(C, W)))
-
-    # Check whether the regularization level is optimal and adjust with the
-    # learning rate, when appropriate:
 
     # find the best-quality channel
     best_ch = np.argmin(sigmas)
