@@ -31,11 +31,11 @@ class Preprocessor:
         # baseline update rate for geometric weighting of samples:
         self.baseline_update_rate = 0.0006
 
-        # Smooth sigmas update coefficient:
+        # Smooth sigmas update coefficient for SOUND filter updating:
         self.sigmas_update_coeff = 0.05
         # -----------------------
 
-        # Estimate the neuronal covariance for SOUND
+        # Calculate regularized lead-field matrix for SOUND function
         LL = self.lfm @ (self.lfm.T)
         regularization_term = self.lambda0*np.trace(LL) / self.num_of_eeg_channels
         self.LL_reg = LL / regularization_term
@@ -53,7 +53,7 @@ class Preprocessor:
         self.pool = multiprocessing.Pool(processes=2)
         self.result = None
 
-        # Configure the length of sample window.
+        # Configure the length of sample window to 100 ms
         no_of_samples = max(int(0.1*self.sampling_frequency - 1), 1)
         self.sample_window = [-no_of_samples, 0]
 
@@ -132,7 +132,7 @@ class Preprocessor:
 def sound(eeg_samples, baseline_correction, sigmas, num_of_channels, LL_reg, iterations, lambda0, sigmas_update_coeff, convergence_boundary):
     # If there are no channels, return an empty filter.
     if num_of_channels == 0:
-        return np.identity(0), lambda0, np.identity(0), np.identity(0), np.identity(0)
+        return np.identity(0), np.identity(0)
 
     # Actual baseline correction for Sound data buffer
     eeg_samples = eeg_samples - baseline_correction
