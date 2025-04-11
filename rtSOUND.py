@@ -46,7 +46,8 @@ class Preprocessor:
         self.result = None
 
         # Configure the length of sample window.
-        self.sample_window = [-499, 0]
+        no_of_samples = max(int(0.1*self.sampling_frequency - 1), 1)
+        self.sample_window = [-no_of_samples, 0]
 
         # initialize baseline correction
         self.baseline_correction = 0
@@ -70,10 +71,10 @@ class Preprocessor:
             self.samples_after_pulse = 0
             print("A pulse was given.")
 
-        # Assuming that an ongoing artifact lasts for 5000 samples; after that, reset the flag.
+        # Assuming that an ongoing artifact lasts for 1 s; after that, reset the flag.
         if self.ongoing_pulse_artifact:
             self.samples_after_pulse += 1
-            if self.samples_after_pulse == 5000:
+            if self.samples_after_pulse == self.sampling_frequency:
                 self.ongoing_pulse_artifact = False
 
         if self.result is None and \
