@@ -16,7 +16,7 @@ class Preprocessor:
         self.sampling_frequency = sampling_frequency
 
         # Load the lead field matrix from a CSV file
-        # IMPORTANT! Change this to a lead field matrix compatible with your real-time streaming data
+        # IMPORTANT! Change the file SOUND_leadfield.csv to a lead field matrix compatible with your real-time streaming data
         self.lfm = np.genfromtxt('SOUND_leadfield.csv',delimiter=',')
 
         # -----------------------
