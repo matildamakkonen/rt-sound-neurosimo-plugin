@@ -94,6 +94,7 @@ class Preprocessor:
                 self.baseline_correction,
                 self.sigmas,
                 self.num_of_eeg_channels,
+                self.lfm,
                 self.LL_reg,
                 self.iterations,
                 self.lambda0,
@@ -129,7 +130,7 @@ class Preprocessor:
         }
 
 
-def sound(eeg_samples, baseline_correction, sigmas, num_of_channels, LL_reg, iterations, lambda0, sigmas_update_coeff, convergence_boundary):
+def sound(eeg_samples, baseline_correction, sigmas, num_of_channels, lfm, LL_reg, iterations, lambda0, sigmas_update_coeff, convergence_boundary):
     # If there are no channels, return an empty filter.
     if num_of_channels == 0:
         return np.identity(0), np.identity(0)
@@ -138,6 +139,8 @@ def sound(eeg_samples, baseline_correction, sigmas, num_of_channels, LL_reg, ite
     eeg_samples = eeg_samples - baseline_correction
 
     # Performs the SOUND algorithm for a given data.
+
+    data = eeg_samples.T
 
     start = time.time()
 
