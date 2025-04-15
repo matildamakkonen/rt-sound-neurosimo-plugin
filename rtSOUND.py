@@ -36,9 +36,9 @@ class Preprocessor:
         # -----------------------
 
         # Calculate regularized lead-field matrix for SOUND function
-        LL = self.lfm @ (self.lfm.T)
-        regularization_term = self.lambda0*np.trace(LL) / self.num_of_eeg_channels
-        self.LL_reg = LL / regularization_term
+        self.LL = self.lfm @ (self.lfm.T)
+        self.regularization_term = self.lambda0*np.trace(self.LL) / self.num_of_eeg_channels
+        self.LL_reg = self.LL / self.regularization_term
 
         # Initialize state
         self.filter = np.identity(self.num_of_eeg_channels)
@@ -54,8 +54,8 @@ class Preprocessor:
         self.result = None
 
         # Configure the length of sample window to 100 ms
-        no_of_samples = max(int(0.1*self.sampling_frequency - 1), 1)
-        self.sample_window = [-no_of_samples, 0]
+        self.no_of_samples = max(int(0.1*self.sampling_frequency - 1), 1)
+        self.sample_window = [-self.no_of_samples, 0]
 
         # initialize baseline correction
         self.baseline_correction = 0
