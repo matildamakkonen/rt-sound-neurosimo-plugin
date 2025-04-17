@@ -54,7 +54,7 @@ class Preprocessor:
         self.result = None
 
         # Configure the length of sample window to 100 ms
-        self.no_of_samples = max(int(0.1*self.sampling_frequency - 1), 1)
+        self.no_of_samples = max(int(0.1*self.sampling_frequency - 1), 2)
         self.sample_window = [-self.no_of_samples, 0]
 
         # initialize baseline correction
@@ -152,7 +152,7 @@ def sound(eeg_samples, baseline_correction, sigmas, num_of_channels, lfm, LL_reg
     #################### Run beamformer SOUND #####################################################
     # See Metsomaa et al. 2024 Brain Topography for equations
 
-    dataCov = np.matmul(data, data.T) / data.shape[1] # Estimate the data covariance matrix as sample covariance
+    dataCov = np.matmul(data, data.T) / (data.shape[1] - 1) # Estimate the data covariance matrix as sample covariance
 
     # Save the previous sigma values before the new iteration:
     sigmas_prev_update = np.copy(sigmas)
