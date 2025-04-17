@@ -33,6 +33,9 @@ class Preprocessor:
 
         # Smooth sigmas update coefficient for SOUND filter updating:
         self.sigmas_update_coeff = 0.05
+
+        # SOUND performance parameters printing to the NeuroSimo log
+        self.verbose = False
         # -----------------------
 
         # Calculate regularized lead-field matrix for SOUND function
@@ -100,6 +103,7 @@ class Preprocessor:
                 self.lambda0,
                 self.sigmas_update_coeff,
                 self.convergence_boundary,
+                self.verbose,
             ))
 
         if self.result is not None:
@@ -130,7 +134,7 @@ class Preprocessor:
         }
 
 
-def sound(eeg_samples, baseline_correction, sigmas, num_of_channels, lfm, LL_reg, iterations, lambda0, sigmas_update_coeff, convergence_boundary):
+def sound(eeg_samples, baseline_correction, sigmas, num_of_channels, lfm, LL_reg, iterations, lambda0, sigmas_update_coeff, convergence_boundary, verbose):
     # If there are no channels, return an empty filter.
     if num_of_channels == 0:
         return np.identity(0), np.identity(0)
@@ -142,7 +146,8 @@ def sound(eeg_samples, baseline_correction, sigmas, num_of_channels, lfm, LL_reg
 
     data = eeg_samples.T
 
-    start = time.time()
+    if verbose:
+        start = time.time()
 
     n0, _ = data.shape
     data = np.reshape(data, (n0, -1))
@@ -167,9 +172,11 @@ def sound(eeg_samples, baseline_correction, sigmas, num_of_channels, lfm, LL_reg
         
         # Following and storing the convergence of the algorithm
         max_noise_estimate_change = np.max(np.abs(sigmas_old - sigmas) / sigmas_old)
-        print("Output: Max noise estimate change = {}".format(max_noise_estimate_change))
+        if verbose:
+            print("Output: Max noise estimate change = {}".format(max_noise_estimate_change))
         if max_noise_estimate_change < convergence_boundary: # terminates the iteration if the convergence boundary is reached
-            print("Output: Convergence reached after {} iterations!".format(k+1))
+            if verbose:
+                print("Output: Convergence reached after {} iterations!".format(k+1))
             break
 
     # Make sure sigmas is a numpy array:
@@ -191,10 +198,11 @@ def sound(eeg_samples, baseline_correction, sigmas, num_of_channels, lfm, LL_reg
     # find the best-quality channel
     best_ch = np.argmin(sigmas)
     # Calculate the relative error in the best channel caused by SOUND overcorrection:
-    rel_err = np.linalg.norm(SOUND_filter[best_ch,:]@data - data[best_ch,:])/np.linalg.norm(data[best_ch,:])
-    print("Output: Relative error in best channel = {}".format(rel_err))
+    if verbose:
+        rel_err = np.linalg.norm(SOUND_filter[best_ch,:]@data - data[best_ch,:])/np.linalg.norm(data[best_ch,:])
+        print("Output: Relative error in best channel = {}".format(rel_err))
 
-    end = time.time()
-    print("Output: SOUND update time = {:.1f} ms".format(10 ** 3 * (end-start)))
+        end = time.time()
+        print("Output: SOUND update time = {:.1f} ms".format(10 ** 3 * (end-start)))
 
     return SOUND_filter, sigmas
