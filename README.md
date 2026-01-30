@@ -1,13 +1,14 @@
-# rt-sound-neurosimo-plugin
-Real-time EEG noise removal - plugin for NeuroSimo real-time software. See the [NeuroSimo repository](https://github.com/NeuroSimo/neurosimo) for information and installation instructions.
+# rtSOUND plugin for NeuroSimo real-time software
+
+Real-time EEG noise removal plugin for NeuroSimo real-time software. See the [NeuroSimo repository](https://github.com/NeuroSimo/neurosimo) for information and installation instructions.
 
 ## Getting started
 
 1. [Create a project](https://github.com/NeuroSimo/neurosimo/blob/main/md/getting-started.md) in NeuroSimo.
-2. Place `rtSOUND.py` and `SOUND_leadfield.csv` in the `preprocessor` folder inside the newly created project folder.
-3. Change the `SOUND_leadfield.csv` file to a lead-field matrix compatible with your real-time-streaming EEG data.
-4. On the NeuroSimo panel, select your project from the dropdown menu. Enable the preprocessor and select `rtSOUND` in the preprocessor dropdown menu.
-5. If you wish to change rtSOUND parameters, they can be changed in the `rtSOUND.py` script section "SOUND parameters".
+2. Place `rtsound.py` and `leadfield.csv` in the `preprocessor` in the preprocessor folder.
+3. Change the `leadfield.csv` file to a lead-field matrix compatible with your real-time-streaming EEG data.
+4. Enable the preprocessor and select `rtsound` in the preprocessor dropdown menu.
+5. If you wish to change rtSOUND parameters, they can be changed in the `rtsound.py` script section "User-changeable parameters".
 
 ## License
 This project is licensed under the GPL v3 License - see the [LICENSE](https://github.com/matildamakkonen/rt-sound-neurosimo-plugin/blob/main/LICENSE) file for details.
