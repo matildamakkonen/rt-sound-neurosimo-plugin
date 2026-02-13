@@ -94,7 +94,7 @@ class Preprocessor:
         # If SOUND filter needs to be updated, and the task is not already running, submit the update task to the multiprocessing pool
         if should_update_filter and self.update_task is None:
             self.update_task = self.pool.apply_async(compute_sound_filter, (
-                eeg_buffer,
+                eeg_buffer.copy(),
                 self.baseline_correction,
                 self.sigmas,
                 self.num_eeg_channels,
